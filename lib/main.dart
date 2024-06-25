@@ -1,53 +1,92 @@
 import 'package:flutter/material.dart';
+import 'package:post_planning_app/screens/mission_details_screen.dart';
+import 'package:provider/provider.dart';
+import 'package:post_planning_app/providers/launch_provider.dart';
+import 'package:post_planning_app/providers/mission_provider.dart';
+import 'package:post_planning_app/screens/launch_list_screen.dart';
+import 'package:post_planning_app/screens/missions_list_screen.dart';
+import 'package:post_planning_app/screens/launch_detail_screen.dart';
 
-import 'package:post_planning_app/shared/local/cash_helper.dart';
-import 'package:post_planning_app/shared/remote/dio_helper.dart';
-import 'package:post_planning_app/shared/remote/dio_helper_api.dart';
 
-import 'home_layout.dart';
-
-
-Future<void> main() async {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  DioHelper.init(
-      _scaffoldKey
-  );
-  DioHelperApi.init(
-      _scaffoldKey
-  );
-  await CashHelper.init();
-  runApp(const MyApp());
+
+  runApp(MyApp());
 }
-final GlobalKey<ScaffoldMessengerState> _scaffoldKey = GlobalKey<ScaffoldMessengerState>();
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // TRY THIS: Try running your application with "flutter run". You'll see
-        // the application has a purple toolbar. Then, without quitting the app,
-        // try changing the seedColor in the colorScheme below to Colors.green
-        // and then invoke "hot reload" (save your changes or press the "hot
-        // reload" button in a Flutter-supported IDE, or press "r" if you used
-        // the command line to start the app).
-        //
-        // Notice that the counter didn't reset back to zero; the application
-        // state is not lost during the reload. To reset the state, use hot
-        // restart instead.
-        //
-        // This works for code too, not just values: Most code changes can be
-        // tested with just a hot reload.
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => LaunchProvider()),
+        ChangeNotifierProvider(create: (_) => MissionProvider()),
+      ],
+      child: MaterialApp(
+        title: 'SpaceX Launches and Missions',
+        theme: ThemeData(
+          primarySwatch: Colors.blue,
+          visualDensity: VisualDensity.adaptivePlatformDensity,
+        ),
+        home: BottomNavigation(),
+        onGenerateRoute: (settings) {
+          if (settings.name == '/launch-details') {
+            final String flightNumber = settings.arguments as String;
+            return MaterialPageRoute(
+              builder: (context) => LaunchDetailsScreen(flightNumber: flightNumber),
+            );
+          } else if (settings.name == '/mission-details') {
+            final String missionId = settings.arguments as String;
+            return MaterialPageRoute(
+              builder: (context) => MissionDetailsScreen(missionId: missionId),
+            );
+          }
+          return null;
+        },
       ),
-      home: HomeLayout(),
+    );
+  }
+}
+
+class BottomNavigation extends StatefulWidget {
+  @override
+  _BottomNavigationState createState() => _BottomNavigationState();
+}
+
+class _BottomNavigationState extends State<BottomNavigation> {
+  int _currentIndex = 0;
+
+  final List<Widget> _screens = [
+    LaunchesListScreen(),
+    MissionsListScreen(),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('SpaceX Launches and Missions'),
+
+      ),
+      body: _screens[_currentIndex],
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _currentIndex,
+        onTap: (index) {
+          setState(() {
+            _currentIndex = index;
+          });
+        },
+        items: [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.rocket),
+            label: 'Launches',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.assignment),
+            label: 'Missions',
+          ),
+        ],
+      ),
     );
   }
 }
