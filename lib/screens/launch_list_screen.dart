@@ -33,6 +33,7 @@ class _LaunchesListScreenState extends State<LaunchesListScreen> {
     return Scaffold(
       appBar: AppBar(
         title: _isSearching ? _buildSearchField() : Text('SpaceX Launches'),
+
         actions: _buildActions(),
       ),
       body: FutureBuilder<List<Launch>>(
