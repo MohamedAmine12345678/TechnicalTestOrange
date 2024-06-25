@@ -69,9 +69,9 @@ class _MissionsListScreenState extends State<MissionsListScreen> {
       decoration: InputDecoration(
         hintText: 'Search missions...',
         border: InputBorder.none,
-        hintStyle: TextStyle(color: Colors.white70),
+        hintStyle: TextStyle(color: Colors.black),
       ),
-      style: TextStyle(color: Colors.white, fontSize: 16.0),
+      style: TextStyle(color: Colors.black, fontSize: 16.0),
       onChanged: (query) {
         setState(() {});
       },
